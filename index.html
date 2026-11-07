@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyMate</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <button id="dashboardToggle" aria-label="Open dashboard">☰</button>
+    <h1>StudyMate</h1>
+    <p>Your simple study companion</p>
+</header>
+
+<div id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <h2>Dashboard</h2>
+    <button class="nav-button active" data-page="timetable">📅 Timetable</button>
+    <button class="nav-button" data-page="tasks">📝 Tasks</button>
+    <button class="nav-button" data-page="progress">📊 Progress</button>
+    <button class="nav-button" data-page="tips">💡 Study Tips</button>
+    <button class="nav-button" data-page="notes">📒 Notes Maker</button>
+    <button class="nav-button" data-page="quiz">❓ Quiz Taker</button>
+    <button class="nav-button" data-page="flashcards">🃏 Flashcards</button>
+</aside>
+
+<main class="main-content">
+
+    <section class="page-section active" id="timetable">
+        <h2>📅 My Timetable</h2>
+        <p>Add your study sessions for a selected date.</p>
+        <label for="studyDate">Choose date:</label>
+        <input type="date" id="studyDate">
+        <div class="input-row">
+            <input type="text" id="sessionInput" placeholder="Enter subject or study session">
+            <button onclick="addSession()">Add Session</button>
+        </div>
+        <ul id="sessionList"></ul>
+    </section>
+
+    <section class="page-section" id="tasks">
+        <h2>📝 Task Manager</h2>
+        <p>Write down your assignments and study tasks.</p>
+        <div class="input-row">
+            <input type="text" id="taskInput" placeholder="Enter a task">
+            <button onclick="addTask()">Add Task</button>
+        </div>
+        <ul id="taskList"></ul>
+    </section>
+
+    <section class="page-section" id="progress">
+        <h2>📊 Progress Tracker</h2>
+        <p>Check your task progress here.</p>
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="totalTasks">0</h3>
+                <p>Total Tasks</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="completedTasks">0</h3>
+                <p>Completed</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="remainingTasks">0</h3>
+                <p>Remaining</p>
+            </div>
+        </div>
+        <h3 id="progressText">0% Completed</h3>
+        <div class="progress-track">
+            <div id="progressBar"></div>
+        </div>
+    </section>
+
+    <section class="page-section" id="tips">
+        <h2>💡 Study Tips</h2>
+        <p>Get a small idea to make your study session better.</p>
+        <div class="tip-box" id="tipText">Click the button to get a study tip!</div>
+        <button onclick="showTip()">Show Another Tip</button>
+    </section>
+
+    <section class="page-section" id="notes">
+        <h2>📒 Notes Maker</h2>
+        <p>Write your notes and create a simple summary.</p>
+        <textarea id="notesInput" rows="7" placeholder="Write or paste your notes here..."></textarea>
+        <div class="button-row">
+            <button onclick="makeSummary()">Make Summary</button>
+            <button onclick="saveNote()">Save Notes</button>
+            <button onclick="speakNotes()">Listen</button>
+        </div>
+        <div class="result-box">
+            <h3>Summary</h3>
+            <p id="summaryOutput">Your summary will appear here.</p>
+            <h3>Important Points</h3>
+            <ul id="importantPoints"></ul>
+        </div>
+        <h3>Saved Notes</h3>
+        <div id="savedNotes"></div>
+    </section>
+
+    <section class="page-section" id="quiz">
+        <h2>❓ Quiz Taker</h2>
+        <p>Create your own questions and test your knowledge.</p>
+        <input type="text" id="quizQuestion" placeholder="Enter your question">
+        <input type="text" id="quizAnswer" placeholder="Enter the correct answer">
+        <button onclick="addQuestion()">Add Question</button>
+        <h3>Your Questions</h3>
+        <ul id="questionList"></ul>
+        <button onclick="startQuiz()">Start Quiz</button>
+        <div id="quizArea" class="result-box" style="display:none;">
+            <h3 id="currentQuestion"></h3>
+            <input type="text" id="userAnswer" placeholder="Your answer">
+            <button onclick="checkAnswer()">Submit Answer</button>
+            <p id="quizFeedback"></p>
+            <p id="quizScore"></p>
+            <button id="nextQuestion" onclick="nextQuizQuestion()" style="display:none;">Next Question</button>
+        </div>
+    </section>
+
+    <section class="page-section" id="flashcards">
+        <h2>🃏 Flashcards</h2>
+        <p>Create cards to practise definitions and concepts.</p>
+        <input type="text" id="cardFront" placeholder="Front: Question or term">
+        <input type="text" id="cardBack" placeholder="Back: Answer or definition">
+        <button onclick="addFlashcard()">Add Flashcard</button>
+
+        <div class="flashcard" id="flashcardDisplay">
+            <p id="flashcardText">Your flashcards will appear here.</p>
+        </div>
+        <div class="button-row">
+            <button onclick="flipFlashcard()">Flip Card</button>
+            <button onclick="previousFlashcard()">Previous</button>
+            <button onclick="nextFlashcard()">Next</button>
+            <button onclick="deleteFlashcard()">Delete</button>
+        </div>
+        <p id="cardCounter">0 / 0</p>
+    </section>
+
+</main>
+
+<footer>
+    <p>Made with care by StudyMate 💜</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
