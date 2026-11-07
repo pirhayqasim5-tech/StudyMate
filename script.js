@@ -13,12 +13,12 @@ dashboardToggle.addEventListener("click", function() {
     overlay.classList.toggle("show");
 });
 
-overlay.addEventListener("click", closeDashboard);
-
 function closeDashboard() {
     sidebar.classList.remove("open");
     overlay.classList.remove("show");
 }
+
+overlay.addEventListener("click", closeDashboard);
 
 navigationButtons.forEach(function(button) {
     button.addEventListener("click", function() {
@@ -47,68 +47,114 @@ navigationButtons.forEach(function(button) {
 
 /* TIMETABLE */
 
-let timetable = JSON.parse(localStorage.getItem("studyTimetable")) || {};
+let timetable = JSON.parse(localStorage.getItem("studyTimetable")) || [];
 
 const studyDate = document.getElementById("studyDate");
 const sessionInput = document.getElementById("sessionInput");
+const startTime = document.getElementById("startTime");
+const endTime = document.getElementById("endTime");
 const sessionList = document.getElementById("sessionList");
-
-studyDate.value = new Date().toISOString().split("T")[0];
 
 function saveTimetable() {
     localStorage.setItem("studyTimetable", JSON.stringify(timetable));
 }
 
-function displaySessions() {
+function addSession() {
+    const date = studyDate.value;
+    const subject = sessionInput.value.trim();
+    const start = startTime.value;
+    const end = endTime.value;
+
+    if (!date || !subject || !start || !end) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    if (end <= start) {
+        alert("End time must be later than start time.");
+        return;
+    }
+
+    timetable.push({
+        date: date,
+        subject: subject,
+        start: start,
+        end: end
+    });
+
+    saveTimetable();
+
+    sessionInput.value = "";
+    startTime.value = "";
+    endTime.value = "";
+
+    displayTimetable();
+}
+
+function displayTimetable() {
     sessionList.innerHTML = "";
 
-    const date = studyDate.value;
-    const sessions = timetable[date] || [];
+    if (timetable.length === 0) {
+        sessionList.textContent = "No study sessions added yet.";
+        return;
+    }
 
-    sessions.forEach(function(session, index) {
-        const li = document.createElement("li");
-        li.className = "session-item";
+    const sortedSessions = [...timetable].sort(function(a, b) {
+        return (a.date + a.start).localeCompare(b.date + b.start);
+    });
 
-        const span = document.createElement("span");
-        span.textContent = session;
+    let currentDate = "";
+
+    sortedSessions.forEach(function(session) {
+        if (session.date !== currentDate) {
+            currentDate = session.date;
+
+            const heading = document.createElement("h3");
+            const dateParts = session.date.split("-");
+
+            const readableDate = new Date(
+                Number(dateParts[0]),
+                Number(dateParts[1]) - 1,
+                Number(dateParts[2])
+            );
+
+            heading.textContent = readableDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            });
+
+            sessionList.appendChild(heading);
+        }
+
+        const card = document.createElement("div");
+        card.className = "session-item";
+
+        const details = document.createElement("span");
+        details.textContent =
+            session.start + " – " + session.end + " | " + session.subject;
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
         deleteButton.className = "small-button";
+
         deleteButton.onclick = function() {
-            timetable[date].splice(index, 1);
+            timetable = timetable.filter(function(item) {
+                return item.id !== session.id;
+            });
+
             saveTimetable();
-            displaySessions();
+            displayTimetable();
         };
 
-        li.appendChild(span);
-        li.appendChild(deleteButton);
-        sessionList.appendChild(li);
+        card.appendChild(details);
+        card.appendChild(deleteButton);
+        sessionList.appendChild(card);
     });
 }
 
-function addSession() {
-    const session = sessionInput.value.trim();
-    const date = studyDate.value;
-
-    if (session === "" || date === "") {
-        alert("Please enter a session and choose a date.");
-        return;
-    }
-
-    if (!timetable[date]) {
-        timetable[date] = [];
-    }
-
-    timetable[date].push(session);
-    saveTimetable();
-
-    sessionInput.value = "";
-    displaySessions();
-}
-
-studyDate.addEventListener("change", displaySessions);
-displaySessions();
+displayTimetable();
 
 
 /* TASK MANAGER */
@@ -146,7 +192,6 @@ function displayTasks() {
             tasks[index].completed = checkbox.checked;
             saveTasks();
             displayTasks();
-            updateProgress();
         });
 
         const deleteButton = document.createElement("button");
@@ -157,12 +202,12 @@ function displayTasks() {
             tasks.splice(index, 1);
             saveTasks();
             displayTasks();
-            updateProgress();
         };
 
         li.appendChild(checkbox);
         li.appendChild(span);
         li.appendChild(deleteButton);
+
         taskList.appendChild(li);
     });
 
@@ -187,26 +232,30 @@ function addTask() {
     displayTasks();
 }
 
-displayTasks();
-
-
-/* PROGRESS TRACKER */
-
 function updateProgress() {
     const total = tasks.length;
+
     const completed = tasks.filter(function(task) {
         return task.completed;
     }).length;
 
     const remaining = total - completed;
-    const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+    const percentage = total === 0
+        ? 0
+        : Math.round((completed / total) * 100);
 
     document.getElementById("totalTasks").textContent = total;
     document.getElementById("completedTasks").textContent = completed;
     document.getElementById("remainingTasks").textContent = remaining;
-    document.getElementById("progressText").textContent = percentage + "% Completed";
-    document.getElementById("progressBar").style.width = percentage + "%";
+    document.getElementById("progressText").textContent =
+        percentage + "% Completed";
+
+    document.getElementById("progressBar").style.width =
+        percentage + "%";
 }
+
+displayTasks();
 
 
 /* STUDY TIPS */
@@ -223,7 +272,9 @@ const studyTips = [
 
 function showTip() {
     const randomIndex = Math.floor(Math.random() * studyTips.length);
-    document.getElementById("tipText").textContent = studyTips[randomIndex];
+
+    document.getElementById("tipText").textContent =
+        studyTips[randomIndex];
 }
 
 
@@ -244,14 +295,15 @@ function makeSummary() {
     }
 
     const sentences = text.match(/[^.!?]+[.!?]?/g) || [text];
+
     const cleanSentences = sentences.map(function(sentence) {
         return sentence.trim();
     }).filter(function(sentence) {
         return sentence.length > 0;
     });
 
-    const summary = cleanSentences.slice(0, 3).join(" ");
-    summaryOutput.textContent = summary;
+    summaryOutput.textContent =
+        cleanSentences.slice(0, 3).join(" ");
 
     importantPoints.innerHTML = "";
 
@@ -271,6 +323,7 @@ function saveNote() {
     }
 
     savedNotes.push(text);
+
     localStorage.setItem("studyNotes", JSON.stringify(savedNotes));
 
     displaySavedNotes();
@@ -279,6 +332,7 @@ function saveNote() {
 
 function displaySavedNotes() {
     const savedNotesContainer = document.getElementById("savedNotes");
+
     savedNotesContainer.innerHTML = "";
 
     savedNotes.forEach(function(note, index) {
@@ -290,14 +344,21 @@ function displaySavedNotes() {
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
+
         deleteButton.onclick = function() {
             savedNotes.splice(index, 1);
-            localStorage.setItem("studyNotes", JSON.stringify(savedNotes));
+
+            localStorage.setItem(
+                "studyNotes",
+                JSON.stringify(savedNotes)
+            );
+
             displaySavedNotes();
         };
 
         noteBox.appendChild(noteText);
         noteBox.appendChild(deleteButton);
+
         savedNotesContainer.appendChild(noteBox);
     });
 }
@@ -314,6 +375,7 @@ function speakNotes() {
         window.speechSynthesis.cancel();
 
         const speech = new SpeechSynthesisUtterance(text);
+
         window.speechSynthesis.speak(speech);
     } else {
         alert("Text-to-speech is not supported in this browser.");
@@ -326,6 +388,7 @@ displaySavedNotes();
 /* QUIZ TAKER */
 
 let quizQuestions = JSON.parse(localStorage.getItem("studyQuiz")) || [];
+
 let currentQuizIndex = 0;
 let quizCorrect = 0;
 let quizAnswered = false;
@@ -336,11 +399,12 @@ function saveQuestions() {
 
 function displayQuestions() {
     const questionList = document.getElementById("questionList");
+
     questionList.innerHTML = "";
 
     quizQuestions.forEach(function(item, index) {
         const li = document.createElement("li");
-        li.textContent = item.question;
+        li.textContent = item.question + " ";
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
@@ -358,8 +422,11 @@ function displayQuestions() {
 }
 
 function addQuestion() {
-    const question = document.getElementById("quizQuestion").value.trim();
-    const answer = document.getElementById("quizAnswer").value.trim();
+    const question =
+        document.getElementById("quizQuestion").value.trim();
+
+    const answer =
+        document.getElementById("quizAnswer").value.trim();
 
     if (question === "" || answer === "") {
         alert("Please enter both question and answer.");
@@ -388,7 +455,8 @@ function startQuiz() {
     quizCorrect = 0;
 
     document.getElementById("quizArea").style.display = "block";
-    document.getElementById("quizScore").textContent = "";
+    document.getElementById("userAnswer").style.display = "block";
+
     showQuizQuestion();
 }
 
@@ -399,10 +467,13 @@ function showQuizQuestion() {
         quizQuestions[currentQuizIndex].question;
 
     document.getElementById("userAnswer").value = "";
-    document.getElementById("quizFeedback").textContent = "";
-
-    document.getElementById("nextQuestion").style.display = "none";
     document.getElementById("userAnswer").disabled = false;
+
+    document.getElementById("quizFeedback").textContent = "";
+    document.getElementById("quizScore").textContent = "";
+
+    document.getElementById("submitAnswer").style.display = "inline-block";
+    document.getElementById("nextQuestion").style.display = "none";
 }
 
 function checkAnswer() {
@@ -410,8 +481,11 @@ function checkAnswer() {
         return;
     }
 
-    const userAnswer = document.getElementById("userAnswer").value.trim();
-    const correctAnswer = quizQuestions[currentQuizIndex].answer;
+    const userAnswer =
+        document.getElementById("userAnswer").value.trim();
+
+    const correctAnswer =
+        quizQuestions[currentQuizIndex].answer;
 
     if (userAnswer === "") {
         alert("Please enter your answer.");
@@ -422,17 +496,22 @@ function checkAnswer() {
 
     if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
         quizCorrect++;
-        document.getElementById("quizFeedback").textContent = "Correct answer!";
+
+        document.getElementById("quizFeedback").textContent =
+            "Correct answer!";
     } else {
         document.getElementById("quizFeedback").textContent =
             "Incorrect. Correct answer: " + correctAnswer;
     }
 
     document.getElementById("userAnswer").disabled = true;
+    document.getElementById("submitAnswer").style.display = "none";
+
     document.getElementById("quizScore").textContent =
         "Score: " + quizCorrect + " / " + (currentQuizIndex + 1);
 
-    document.getElementById("nextQuestion").style.display = "inline-block";
+    document.getElementById("nextQuestion").style.display =
+        "inline-block";
 }
 
 function nextQuizQuestion() {
@@ -441,13 +520,19 @@ function nextQuizQuestion() {
     if (currentQuizIndex < quizQuestions.length) {
         showQuizQuestion();
     } else {
-        document.getElementById("currentQuestion").textContent = "Quiz Completed!";
-        document.getElementById("quizFeedback").textContent =
-            "You got " + quizCorrect + " out of " + quizQuestions.length + " correct.";
+        document.getElementById("currentQuestion").textContent =
+            "Quiz Completed!";
 
-        document.getElementById("quizScore").textContent = "Well done!";
+        document.getElementById("quizFeedback").textContent =
+            "You got " + quizCorrect + " out of " +
+            quizQuestions.length + " correct.";
+
+        document.getElementById("quizScore").textContent =
+            "Well done!";
+
         document.getElementById("nextQuestion").style.display = "none";
         document.getElementById("userAnswer").style.display = "none";
+        document.getElementById("submitAnswer").style.display = "none";
     }
 }
 
@@ -457,11 +542,15 @@ displayQuestions();
 /* FLASHCARDS */
 
 let flashcards = JSON.parse(localStorage.getItem("studyFlashcards")) || [];
+
 let currentCardIndex = 0;
 let showingFront = true;
 
 function saveFlashcards() {
-    localStorage.setItem("studyFlashcards", JSON.stringify(flashcards));
+    localStorage.setItem(
+        "studyFlashcards",
+        JSON.stringify(flashcards)
+    );
 }
 
 function addFlashcard() {
@@ -485,6 +574,7 @@ function addFlashcard() {
 
     currentCardIndex = flashcards.length - 1;
     showingFront = true;
+
     displayFlashcard();
 }
 
@@ -493,15 +583,20 @@ function displayFlashcard() {
     const counter = document.getElementById("cardCounter");
 
     if (flashcards.length === 0) {
-        flashcardText.textContent = "Your flashcards will appear here.";
+        flashcardText.textContent =
+            "Your flashcards will appear here.";
+
         counter.textContent = "0 / 0";
         return;
     }
 
     const card = flashcards[currentCardIndex];
 
-    flashcardText.textContent = showingFront ? card.front : card.back;
-    counter.textContent = (currentCardIndex + 1) + " / " + flashcards.length;
+    flashcardText.textContent =
+        showingFront ? card.front : card.back;
+
+    counter.textContent =
+        (currentCardIndex + 1) + " / " + flashcards.length;
 }
 
 function flipFlashcard() {
@@ -518,7 +613,9 @@ function nextFlashcard() {
         return;
     }
 
-    currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+    currentCardIndex =
+        (currentCardIndex + 1) % flashcards.length;
+
     showingFront = true;
     displayFlashcard();
 }
@@ -547,6 +644,7 @@ function deleteFlashcard() {
     }
 
     showingFront = true;
+
     saveFlashcards();
     displayFlashcard();
 }
