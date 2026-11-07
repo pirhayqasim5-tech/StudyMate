@@ -12,6 +12,8 @@ body {
     min-height: 100vh;
 }
 
+/* HEADER */
+
 .topbar {
     text-align: center;
     padding: 25px 15px;
@@ -29,6 +31,8 @@ body {
     color: #c4bfd3;
 }
 
+/* DASHBOARD BUTTON */
+
 #dashboardToggle {
     position: fixed;
     top: 18px;
@@ -40,6 +44,8 @@ body {
     font-size: 23px;
     background: #8b5cf6;
 }
+
+/* SIDEBAR */
 
 .sidebar {
     position: fixed;
@@ -79,6 +85,8 @@ body {
     background: #7549c8;
 }
 
+/* SIDEBAR OVERLAY */
+
 #overlay {
     display: none;
     position: fixed;
@@ -90,6 +98,8 @@ body {
 #overlay.show {
     display: block;
 }
+
+/* MAIN CONTENT */
 
 .main-content {
     width: min(900px, 92%);
@@ -110,6 +120,8 @@ body {
     display: block;
 }
 
+/* GENERAL TEXT */
+
 h2 {
     color: #c5a8ff;
     margin-bottom: 15px;
@@ -125,6 +137,8 @@ p {
     color: #d0cadf;
     margin-bottom: 12px;
 }
+
+/* INPUTS */
 
 input, textarea {
     display: block;
@@ -146,6 +160,8 @@ textarea {
 input:focus, textarea:focus {
     outline: 2px solid #9971e9;
 }
+
+/* BUTTONS */
 
 button {
     padding: 11px 16px;
@@ -173,6 +189,44 @@ button:hover {
     flex: 1;
     min-width: 180px;
 }
+
+/* TIMETABLE */
+
+.timetable-form {
+    background: #29263c;
+    padding: 18px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.timetable-form label {
+    display: block;
+    margin-top: 12px;
+    color: #d7c6ff;
+}
+
+.timetable-form input {
+    margin-top: 7px;
+}
+
+#sessionList {
+    margin-top: 20px;
+}
+
+#sessionList h3 {
+    background: #39304f;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 22px;
+}
+
+#sessionList .session-item {
+    background: #29263c;
+    padding: 14px;
+    border-left: 4px solid #9b75ed;
+}
+
+/* LISTS */
 
 ul {
     padding-left: 22px;
@@ -211,6 +265,8 @@ li {
     margin: 0;
 }
 
+/* PROGRESS TRACKER */
+
 .stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -246,6 +302,8 @@ li {
     transition: width 0.3s;
 }
 
+/* STUDY TIPS AND NOTES */
+
 .tip-box, .result-box {
     padding: 18px;
     margin: 18px 0;
@@ -267,6 +325,8 @@ li {
     overflow-wrap: anywhere;
 }
 
+/* FLASHCARDS */
+
 .flashcard {
     min-height: 180px;
     display: flex;
@@ -285,11 +345,15 @@ li {
     color: #eee7ff;
 }
 
+/* FOOTER */
+
 footer {
     text-align: center;
     padding: 20px;
     color: #aaa1bd;
 }
+
+/* MOBILE VIEW */
 
 @media (max-width: 600px) {
     .page-section {
